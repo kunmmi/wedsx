@@ -32,11 +32,26 @@ def run_health_server():
         logger.error(f"Health server error: {str(e)}")
 
 def run_bot():
-    """Run the Telegram bot"""
+    """Run the Telegram bot using v20 Application.run_polling()"""
     try:
-        from src.bot.main import run_bot
+        from telegram.ext import ApplicationBuilder
+        from src.bot.handlers import get_handlers
+        
         logger.info("Starting BearTech Bot...")
-        run_bot()
+        
+        # Build application
+        application = ApplicationBuilder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
+        
+        # Add handlers
+        handlers = get_handlers()
+        for handler in handlers:
+            application.add_handler(handler)
+        
+        # Run polling (blocking)
+        application.run_polling(
+            drop_pending_updates=True,
+            allowed_updates=["message", "callback_query"],
+        )
     except Exception as e:
         logger.error(f"Bot error: {str(e)}")
 
