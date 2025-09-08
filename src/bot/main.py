@@ -259,10 +259,24 @@ def run_bot():
         for handler in handlers:
             application.add_handler(handler)
 
+        # Set bot commands
+        async def set_commands():
+            from telegram import BotCommand
+            commands = [
+                BotCommand("start", "Start the bot and see welcome message"),
+                BotCommand("help", "Show detailed help and usage instructions"),
+                BotCommand("analyze", "Analyze a specific token contract address"),
+                BotCommand("chains", "Show supported blockchain networks"),
+                BotCommand("status", "Show bot status and statistics")
+            ]
+            await application.bot.set_my_commands(commands)
+            logger.info("Bot commands set successfully")
+
         # Run polling (blocking)
         application.run_polling(
             drop_pending_updates=True,
             allowed_updates=["message", "callback_query"],
+            post_init=set_commands
         )
     except KeyboardInterrupt:
         logger.info("Bot stopped by user")
