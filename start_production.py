@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """
-Production startup script for BearTech Bot on Render
+Production startup script for BearTech Bot on Render - Clean v20 version
 """
 import os
-import asyncio
-import threading
 import logging
 from multiprocessing import Process
 
@@ -26,19 +24,18 @@ def run_health_server():
         from health_check import app
         port = int(os.getenv("PORT", 8000))
         logger.info(f"Starting health check server on port {port}")
-        # Use Flask's built-in server
         app.run(host="0.0.0.0", port=port)
     except Exception as e:
         logger.error(f"Health server error: {str(e)}")
 
 def run_bot():
-    """Run the Telegram bot using v20 Application.run_polling()"""
+    """Run the Telegram bot using v20 Application.run_polling() - NO Updater"""
     try:
         from telegram.ext import ApplicationBuilder
         from telegram import BotCommand
         from src.bot.handlers import get_handlers
         
-        logger.info("Starting BearTech Bot...")
+        logger.info("Starting BearTech Bot with v20 Application.run_polling()...")
         
         # Build application
         application = ApplicationBuilder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
@@ -60,7 +57,7 @@ def run_bot():
             await application.bot.set_my_commands(commands)
             logger.info("Bot commands set successfully")
         
-        # Run polling (blocking)
+        # Run polling (blocking) - NO Updater
         application.run_polling(
             drop_pending_updates=True,
             allowed_updates=["message", "callback_query"],
@@ -68,6 +65,7 @@ def run_bot():
         )
     except Exception as e:
         logger.error(f"Bot error: {str(e)}")
+        raise
 
 def main():
     """Main production startup function"""
